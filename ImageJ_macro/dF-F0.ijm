@@ -6,6 +6,8 @@
 // To run without the autosave option, comment out the lines 62
 // Comment out lines 41-58 if you don't want to auto adjust the contrast
 
+//Modified version used at GlioMatrixLab (Achucarro Basque Center for Neuroscience)
+
 name1=getTitle;
 //selectWindow(name1)
 directory=getInfo("image.directory"); 
