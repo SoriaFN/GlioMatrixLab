@@ -33,7 +33,7 @@ selectWindow(name2)
 nn2=replace(name1, ".tif", "_AVG.tif");
 //nn2=replace(name1, ".tif", "_AVG-halfsz.tif");
 fnm2=directory+nn2;
-saveAs("Tiff", fnm2);
+//saveAs("Tiff", fnm2);
 name2=getTitle;
 
 selectWindow(name4)
