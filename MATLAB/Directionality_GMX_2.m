@@ -17,8 +17,9 @@ data = readtable(fullfile(filepath, filename));
 trackNumbers = unique(data.Track);
 
 % Create a figure for plotting tracks
-figure;
+track_plot_fig = figure;
 hold on;
+axis equal; % Ensure equal scaling for X and Y axes
 
 % Initialize arrays to store major and minor axes lengths, aspect ratios, track lengths, areas, directionality indexes, and territory indexes
 major_axes = zeros(length(trackNumbers), 1);
@@ -38,7 +39,7 @@ for i = 1:length(trackNumbers)
     y = data.Y(data.Track == currentTrack);
     
     % Plot the track
-    plot(x, y, '-o', 'LineWidth', 1.5);
+    plot(x, y, '-o', 'LineWidth', 1);
     
     % Fit a convex hull to the track points
     k = convhull(x, y);
@@ -46,7 +47,7 @@ for i = 1:length(trackNumbers)
     poly_y = y(k);
     
     % Plot the convex hull
-    plot(poly_x, poly_y, '-.', 'LineWidth', 1.5);
+    plot(poly_x, poly_y, '-.', 'LineWidth', 1);
     
     % Calculate major and minor axes of the convex hull
     centroid = mean([poly_x, poly_y]);
@@ -91,10 +92,10 @@ for i = 1:length(trackNumbers)
 end
 
 % Add titles, labels, and grid for the track plot
-title('Track Plot with Fitted Ellipses and Convex Hulls');
+title('Track Plot with Convex Hulls');
 xlabel('X Position');
 ylabel('Y Position');
-grid on;
+grid off;
 hold off;
 
 %%
@@ -117,7 +118,12 @@ output_filename = fullfile(filepath, ['track_properties_', name, '.xlsx']);
 output_table = table(trackNumbers, major_axes, minor_axes, aspect_ratios, areas_ellipse, track_lengths, directionality_indexes);
 writetable(output_table, output_filename);
 
+% Save the track plot as .fig and .tif
+savefig(track_plot_fig, fullfile(filepath, ['track_plot_', name, '.fig']));
+print(track_plot_fig, fullfile(filepath, ['track_plot_', name, '.tif']), '-dtiff', '-r300');
+
 disp(['Data exported to ', output_filename]);
+
 
 function plotRegressionScatter(xData, yData, xLabel, yLabel, plotTitle, lineColor)
     figure;
@@ -147,3 +153,24 @@ function plotRegressionScatter(xData, yData, xLabel, yLabel, plotTitle, lineColo
          'BackgroundColor', 'w', 'EdgeColor', lineColor, 'Margin', 2);
     hold off;
 end
+
+% === Display Directionality Index Table as a Figure ===
+
+% Sort by directionality index in descending order
+[directionality_indexes_sorted, sort_idx] = sort(directionality_indexes, 'descend');
+trackNumbers_sorted = trackNumbers(sort_idx);
+
+% Create a sorted table to display
+directionality_table = table(trackNumbers_sorted, directionality_indexes_sorted, ...
+    'VariableNames', {'TrackNumber', 'DirectionalityIndex'});
+
+% Create a UI figure window
+dir_table_fig = uifigure('Name', 'Directionality Index Table');
+
+% Create a UI table inside the figure
+uit = uitable(dir_table_fig, ...
+    'Data', directionality_table, ...
+    'Position', [20 20 360 500]);
+
+% Auto-resize columns
+uit.ColumnWidth = 'auto';
