@@ -41,12 +41,12 @@ for i = 1:length(trackNumbers)
 end
 
 % Fixed axis limits
-axis_limit = 300;
+axis_limit = 100;
 xlim([-axis_limit, axis_limit]);
 ylim([-axis_limit, axis_limit]);
 
 % Draw concentric dotted circles every 50 units
-radii = 50:50:axis_limit;
+radii = 10:10:axis_limit;
 theta = linspace(0, 2*pi, 300);
 for r = radii
     x_circ = r * cos(theta);
