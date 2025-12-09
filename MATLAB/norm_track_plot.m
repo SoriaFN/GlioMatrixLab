@@ -1,5 +1,7 @@
 % === PLOT TRACKS WITH RELATIVE COORDINATES AND REFERENCE CIRCLES ===
 
+% If range of axes is not correct, change values in lines 46 and 51
+
 % Prompt user to select an Excel file
 [filename, filepath] = uigetfile({'*.xlsx', 'Excel Files (*.xlsx)'}, 'Select the Excel file');
 if isequal(filename, 0)
@@ -41,12 +43,12 @@ for i = 1:length(trackNumbers)
 end
 
 % Fixed axis limits
-axis_limit = 100;
+axis_limit = 200; % change if needed
 xlim([-axis_limit, axis_limit]);
 ylim([-axis_limit, axis_limit]);
 
-% Draw concentric dotted circles every 50 units
-radii = 10:10:axis_limit;
+% Draw concentric dotted circles every X units
+radii = 25:25:axis_limit; % change if needed
 theta = linspace(0, 2*pi, 300);
 for r = radii
     x_circ = r * cos(theta);

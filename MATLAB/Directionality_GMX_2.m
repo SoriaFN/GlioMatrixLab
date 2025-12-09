@@ -124,6 +124,28 @@ print(track_plot_fig, fullfile(filepath, ['track_plot_', name, '.tif']), '-dtiff
 
 disp(['Data exported to ', output_filename]);
 
+% === Display Directionality Index Table as a Figure ===
+
+% Sort by directionality index in descending order
+[directionality_indexes_sorted, sort_idx] = sort(directionality_indexes, 'descend');
+trackNumbers_sorted = trackNumbers(sort_idx);
+
+% Create a sorted table to display
+directionality_table = table(trackNumbers_sorted, directionality_indexes_sorted, ...
+    'VariableNames', {'TrackNumber', 'DirectionalityIndex'});
+
+% Create a UI figure window
+dir_table_fig = uifigure('Name', 'Directionality Index Table');
+
+% Create a UI table inside the figure
+uit = uitable(dir_table_fig, ...
+    'Data', directionality_table, ...
+    'Position', [20 20 360 500]);
+
+% Auto-resize columns
+uit.ColumnWidth = 'auto';
+
+
 
 function plotRegressionScatter(xData, yData, xLabel, yLabel, plotTitle, lineColor)
     figure;
@@ -153,24 +175,3 @@ function plotRegressionScatter(xData, yData, xLabel, yLabel, plotTitle, lineColo
          'BackgroundColor', 'w', 'EdgeColor', lineColor, 'Margin', 2);
     hold off;
 end
-
-% === Display Directionality Index Table as a Figure ===
-
-% Sort by directionality index in descending order
-[directionality_indexes_sorted, sort_idx] = sort(directionality_indexes, 'descend');
-trackNumbers_sorted = trackNumbers(sort_idx);
-
-% Create a sorted table to display
-directionality_table = table(trackNumbers_sorted, directionality_indexes_sorted, ...
-    'VariableNames', {'TrackNumber', 'DirectionalityIndex'});
-
-% Create a UI figure window
-dir_table_fig = uifigure('Name', 'Directionality Index Table');
-
-% Create a UI table inside the figure
-uit = uitable(dir_table_fig, ...
-    'Data', directionality_table, ...
-    'Position', [20 20 360 500]);
-
-% Auto-resize columns
-uit.ColumnWidth = 'auto';
