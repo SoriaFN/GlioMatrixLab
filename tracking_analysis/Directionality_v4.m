@@ -27,7 +27,7 @@ minor_axes = zeros(length(trackNumbers), 1);
 aspect_ratios = zeros(length(trackNumbers), 1);
 track_lengths = zeros(length(trackNumbers), 1);
 areas_ellipse = zeros(length(trackNumbers), 1);
-directionality_indexes= zeros(length(trackNumbers), 1);
+directionality_indexes = zeros(length(trackNumbers), 1);
 
 % Loop through each track number
 for i = 1:length(trackNumbers)
@@ -35,8 +35,15 @@ for i = 1:length(trackNumbers)
     currentTrack = trackNumbers(i);
     
     % Extract x and y positions for the current track
-    x = data.X(data.Track == currentTrack);
-    y = data.Y(data.Track == currentTrack);
+    mask = data.Track == currentTrack;
+    x = data.X(mask);
+    y = data.Y(mask);
+
+    % Skip tracks with fewer than 3 points (convhull requires >=3)
+    if numel(x) < 3
+        warning('Track %d has <3 points; skipping.', currentTrack);
+        continue;
+    end
     
     % Plot the track
     plot(x, y, '-o', 'LineWidth', 1);
@@ -83,8 +90,8 @@ for i = 1:length(trackNumbers)
     area_ellipse = pi * (major_axis/2) * (minor_axis/2);
     areas_ellipse(i) = area_ellipse;
     
-    % Compute Directionality Index
-    directionality_index = aspect_ratio * (area_ellipse/track_length);
+    % Compute Directionality Index (track length squared)
+    directionality_index = aspect_ratio * (area_ellipse / track_length^2);
     directionality_indexes(i) = directionality_index;
 
     % Display track number next to the track and polygon
@@ -102,7 +109,7 @@ hold off;
 % Plot Territory covered vs Directionality Index in red
 plotRegressionScatter(areas_ellipse, directionality_indexes, ...
                       'Territory covered (area)', 'Directionality Index', ...
-                      'Correlation between Territory and Directionality', 'r');
+                      'Correlation between Territory and Directionality Index', 'r');
 
 % Plot Track Length vs Directionality Index in blue
 plotRegressionScatter(track_lengths, directionality_indexes, ...
@@ -126,7 +133,7 @@ disp(['Data exported to ', output_filename]);
 
 % === Display Directionality Index Table as a Figure ===
 
-% Sort by directionality index in descending order
+% Sort by Directionality Index in descending order
 [directionality_indexes_sorted, sort_idx] = sort(directionality_indexes, 'descend');
 trackNumbers_sorted = trackNumbers(sort_idx);
 
