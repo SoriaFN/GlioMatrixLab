@@ -42,9 +42,9 @@ default_um_per_pixel = 0.409;
 % These defaults work well for unstained NM on pale background.
 % If you're missing particles, try lowering hue_min or sat_min.
 % If you're picking up too much background, raise sat_min or lower val_max.
-hue_min = 0.028;   % ~10 degrees — lower bound of brown
-hue_max = 0.139;   % ~50 degrees — upper bound of brown
-sat_min = 0.08;    % minimum saturation (rejects gray/black artifacts)
+hue_min = 0.022;   % ~10 degrees — lower bound of brown
+hue_max = 0.180;   % ~50 degrees — upper bound of brown
+sat_min = 0.04;    % minimum saturation (rejects gray/black artifacts)
 val_max = 0.85;    % maximum brightness (rejects pale background)
 
 % Median filter radius for cleaning (set to 0 to skip)
@@ -303,6 +303,57 @@ end
 %% 7. Save results
 writetable(T, results_file);
 fprintf('\nResults saved to: %s\n', results_file);
+
+%% 7b. Save summary to separate Excel file
+summary_file = fullfile(outdir, [basename '_NM_summary.xlsx']);
+
+summary_names  = {};
+summary_values = [];
+
+summary_names{end+1}  = 'Total_particles';
+summary_values(end+1) = n_particles;
+summary_names{end+1}  = 'Inside_SN';
+summary_values(end+1) = n_inside;
+summary_names{end+1}  = 'Outside_SN';
+summary_values(end+1) = n_outside;
+
+if n_outside > 0
+    outside_dists = dist_to_sn_um(~is_inside_sn);
+    summary_names{end+1}  = 'Dist_outside_mean_um';
+    summary_values(end+1) = mean(outside_dists);
+    summary_names{end+1}  = 'Dist_outside_median_um';
+    summary_values(end+1) = median(outside_dists);
+    summary_names{end+1}  = 'Dist_outside_max_um';
+    summary_values(end+1) = max(outside_dists);
+    summary_names{end+1}  = 'Dist_outside_min_um';
+    summary_values(end+1) = min(outside_dists);
+end
+
+if n_inside > 0
+    summary_names{end+1}  = 'Area_inside_mean_um2';
+    summary_values(end+1) = mean(areas_um2(is_inside_sn));
+end
+if n_inside > 0 && n_outside > 0
+    summary_names{end+1}  = 'Area_outside_mean_um2';
+    summary_values(end+1) = mean(areas_um2(~is_inside_sn));
+end
+
+% Add calibration and thresholds for reproducibility
+summary_names{end+1}  = 'um_per_pixel';
+summary_values(end+1) = um_per_pixel;
+summary_names{end+1}  = 'hue_min';
+summary_values(end+1) = hue_min;
+summary_names{end+1}  = 'hue_max';
+summary_values(end+1) = hue_max;
+summary_names{end+1}  = 'sat_min';
+summary_values(end+1) = sat_min;
+summary_names{end+1}  = 'val_max';
+summary_values(end+1) = val_max;
+
+T_summary = table(summary_names', summary_values', ...
+    'VariableNames', {'Parameter', 'Value'});
+writetable(T_summary, summary_file);
+fprintf('Summary saved to: %s\n', summary_file);
 
 %% 8. Generate figures
 
